@@ -1,0 +1,1002 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>收益凭证要素确认表</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f5f5f5;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #3498db, #2c3e50);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .form-container {
+            padding: 30px;
+        }
+
+        .form-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            background-color: #fafafa;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #3498db;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            font-weight: 500;
+            margin-bottom: 5px;
+            color: #555;
+        }
+
+        .required {
+            color: #e74c3c;
+        }
+
+        input, select, textarea {
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+        }
+
+        .input-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .unit {
+            color: #666;
+            font-weight: 500;
+        }
+
+        .calculated {
+            background-color: #ecf0f1;
+            cursor: not-allowed;
+        }
+
+        .date-input {
+            position: relative;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 10px 5px;
+        }
+
+        .btn-primary {
+            background-color: #3498db;
+            color: white;
+        }
+
+        .btn-success {
+            background-color: #27ae60;
+            color: white;
+        }
+
+        .btn-info {
+            background-color: #17a2b8;
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .btn-group {
+            text-align: center;
+            padding: 20px;
+            border-top: 1px solid #eee;
+        }
+
+        .error {
+            color: #e74c3c;
+            font-size: 12px;
+            margin-top: 5px;
+        }
+
+        .success {
+            color: #27ae60;
+            font-size: 12px;
+            margin-top: 5px;
+        }
+
+        .info-box {
+            background-color: #e8f4fd;
+            border-left: 4px solid #3498db;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+        }
+
+        @media (max-width: 768px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .container {
+                margin: 0 10px;
+            }
+            
+            .form-container {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>收益凭证要素确认表</h1>
+            <p>请填写完整信息后生成PDF文件</p>
+        </div>
+
+        <div class="form-container">
+            <div class="info-box">
+                <strong>填写须知：</strong>
+                <ul style="margin-left: 20px; margin-top: 5px;">
+                    <li>填写前，请向金融市场投资总部确认收益凭证额度及报价</li>
+                    <li>要素确认日期需早于产品认购日至少7个工作日</li>
+                    <li>如要素有更改，请重新填写</li>
+                </ul>
+            </div>
+
+            <form id="certificateForm">
+                <!-- 产品基本信息 -->
+                <div class="form-section">
+                    <div class="section-title">产品基本信息</div>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="productName">所选产品名称 <span class="required">*</span></label>
+                            <input type="text" id="productName" name="productName" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="productCode">产品编码 <span class="required">*</span></label>
+                            <input type="text" id="productCode" name="productCode" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="underlying">挂钩标的 <span class="required">*</span></label>
+                            <select id="underlying" name="underlying" required>
+                                <option value="">请选择挂钩标的</option>
+                                <option value="沪深300ETF">沪深300ETF</option>
+                                <option value="中证1000ETF">中证1000ETF</option>
+                                <option value="上证50ETF">上证50ETF</option>
+                                <option value="中证500ETF">中证500ETF</option>
+                                <option value="中国国债期货收益指数10年期">中国国债期货收益指数10年期</option>
+                                <option value="FACTOR2指数">FACTOR2指数</option>
+                                <option value="沪金指数">沪金指数</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="underlyingCode">挂钩标的编码</label>
+                            <input type="text" id="underlyingCode" name="underlyingCode" class="calculated" readonly>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 收益结构 -->
+                <div class="form-section">
+                    <div class="section-title">产品收益区间</div>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="minReturn">保底收益 <span class="required">*</span></label>
+                            <div class="input-group">
+                                <input type="number" id="minReturn" name="minReturn" step="0.01" required>
+                                <span class="unit">%</span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="knockoutReturn">敲出收益</label>
+                            <div class="input-group">
+                                <input type="number" id="knockoutReturn" name="knockoutReturn" step="0.01">
+                                <span class="unit">%</span>
+                            </div>
+                            <small style="color: #666; font-size: 11px; margin-top: 3px;">成功之路系列同最高收益</small>
+                        </div>
+                        <div class="form-group">
+                            <label for="maxReturn">最高收益 <span class="required">*</span></label>
+                            <div class="input-group">
+                                <input type="number" id="maxReturn" name="maxReturn" step="0.01" required>
+                                <span class="unit">%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 产品结构 -->
+                <div class="form-section">
+                    <div class="section-title">产品结构</div>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="barrierPrice">障碍价 <span class="required">*</span></label>
+                            <div class="input-group">
+                                <input type="number" id="barrierPrice" name="barrierPrice" step="0.01" required>
+                                <span class="unit">%</span>
+                            </div>
+                            <small style="color: #666; font-size: 11px; margin-top: 3px;">所填数值大于100</small>
+                        </div>
+                        <div class="form-group">
+                            <label for="participationRate">参与率 <span class="required">*</span></label>
+                            <div class="input-group">
+                                <input type="number" id="participationRate" name="participationRate" step="0.01" required>
+                                <span class="unit">%</span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="subscriptionAmount">拟认购金额 <span class="required">*</span></label>
+                            <div class="input-group">
+                                <input type="number" id="subscriptionAmount" name="subscriptionAmount" step="0.01" required>
+                                <span class="unit">万</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 重要日期 -->
+                <div class="form-section">
+                    <div class="section-title">重要日期</div>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="subscriptionDate">产品认购日(T) <span class="required">*</span></label>
+                            <input type="date" id="subscriptionDate" name="subscriptionDate" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="valueDate">产品起息日(T+1) <span class="required">*</span></label>
+                            <input type="date" id="valueDate" name="valueDate" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="maturityDate">产品到期日(T) <span class="required">*</span></label>
+                            <input type="date" id="maturityDate" name="maturityDate" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="settlementDate">产品兑付日(T+2) <span class="required">*</span></label>
+                            <input type="date" id="settlementDate" name="settlementDate" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="duration">产品存续时间</label>
+                            <div class="input-group">
+                                <input type="number" id="duration" name="duration" class="calculated" readonly>
+                                <span class="unit">天</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 客户信息 -->
+                <div class="form-section">
+                    <div class="section-title">客户信息</div>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="customerInfo">客户信息 <span class="required">*</span></label>
+                            <textarea id="customerInfo" name="customerInfo" rows="6" required placeholder="请按以下格式填写客户信息">投资者：
+
+证件类型（营业执照或身份证）：
+
+证件号码：
+
+地址：
+
+联系电话：
+
+法定代表人姓名及身份证号（机构投资者填写）：
+
+客户理财账户：</textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="branch">客户所属分支机构 <span class="required">*</span></label>
+                            <input type="text" id="branch" name="branch" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="confirmationDate">要素确认日期 <span class="required">*</span></label>
+                            <input type="date" id="confirmationDate" name="confirmationDate" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="preparer">填表人 <span class="required">*</span></label>
+                            <input type="text" id="preparer" name="preparer" required>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="btn-group">
+                    <button type="button" class="btn btn-info" onclick="validateForm()">验证表单</button>
+                    <button type="button" class="btn btn-primary" onclick="generateWordDocument()">生成Word文档</button>
+                    <button type="button" class="btn btn-success" onclick="generatePDFDocument()">生成PDF文档</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // 挂钩标的与编码对应表
+        const underlyingCodes = {
+            '沪深300ETF': '510300.SH',
+            '中证1000ETF': '512100.SH',
+            '上证50ETF': '510050.SH',
+            '中证500ETF': '510500.SH',
+            '中国国债期货收益指数10年期': 'CGBFRI10.CCI',
+            'FACTOR2指数': 'FACTOR2.WI',
+            '沪金指数': 'AUFI.WI'
+        };
+
+        // 监听挂钩标的选择，自动填入编码
+        document.getElementById('underlying').addEventListener('change', function() {
+            const selected = this.value;
+            const codeInput = document.getElementById('underlyingCode');
+            codeInput.value = underlyingCodes[selected] || '';
+        });
+
+        // 障碍价和参与率联动计算
+        function calculateParticipationRate() {
+            const minReturn = parseFloat(document.getElementById('minReturn').value) || 0;
+            const maxReturn = parseFloat(document.getElementById('maxReturn').value) || 0;
+            const barrierPrice = parseFloat(document.getElementById('barrierPrice').value) || 0;
+            
+            if (maxReturn > minReturn && barrierPrice > 100) {
+                const participationRate = ((maxReturn - minReturn) / (barrierPrice - 100)) * 100;
+                document.getElementById('participationRate').value = participationRate.toFixed(4);
+            }
+        }
+
+        function calculateBarrierPrice() {
+            const minReturn = parseFloat(document.getElementById('minReturn').value) || 0;
+            const maxReturn = parseFloat(document.getElementById('maxReturn').value) || 0;
+            const participationRate = parseFloat(document.getElementById('participationRate').value) || 0;
+            
+            if (maxReturn > minReturn && participationRate > 0) {
+                const barrierPrice = (maxReturn - minReturn) / (participationRate / 100) + 100;
+                document.getElementById('barrierPrice').value = barrierPrice.toFixed(4);
+            }
+        }
+
+        // 计算下一个工作日
+        function getNextWorkingDay(date) {
+            const nextDay = new Date(date);
+            nextDay.setDate(nextDay.getDate() + 1);
+            
+            // 如果是周六(6)或周日(0)，继续往后推
+            while (nextDay.getDay() === 0 || nextDay.getDay() === 6) {
+                nextDay.setDate(nextDay.getDate() + 1);
+            }
+            
+            return nextDay.toISOString().split('T')[0];
+        }
+
+        // 计算后N个工作日
+        function getWorkingDaysLater(date, days) {
+            const resultDate = new Date(date);
+            let addedDays = 0;
+            
+            while (addedDays < days) {
+                resultDate.setDate(resultDate.getDate() + 1);
+                // 如果不是周末，计入工作日
+                if (resultDate.getDay() !== 0 && resultDate.getDay() !== 6) {
+                    addedDays++;
+                }
+            }
+            
+            return resultDate.toISOString().split('T')[0];
+        }
+
+        // 事件监听器
+        document.getElementById('barrierPrice').addEventListener('input', calculateParticipationRate);
+        document.getElementById('participationRate').addEventListener('input', calculateBarrierPrice);
+        document.getElementById('minReturn').addEventListener('input', function() {
+            setTimeout(() => {
+                calculateParticipationRate();
+                calculateBarrierPrice();
+            }, 100);
+        });
+        document.getElementById('maxReturn').addEventListener('input', function() {
+            setTimeout(() => {
+                calculateParticipationRate();
+                calculateBarrierPrice();
+            }, 100);
+        });
+
+        // 监听日期变化
+        document.getElementById('subscriptionDate').addEventListener('change', function() {
+            const subscriptionDate = this.value;
+            if (subscriptionDate) {
+                const valueDate = getNextWorkingDay(new Date(subscriptionDate));
+                document.getElementById('valueDate').value = valueDate;
+                calculateDuration();
+            }
+        });
+
+        document.getElementById('maturityDate').addEventListener('change', function() {
+            const maturityDate = this.value;
+            if (maturityDate) {
+                const settlementDate = getWorkingDaysLater(new Date(maturityDate), 2);
+                document.getElementById('settlementDate').value = settlementDate;
+            }
+            calculateDuration();
+        });
+
+        document.getElementById('valueDate').addEventListener('change', calculateDuration);
+
+        // 计算产品存续时间
+        function calculateDuration() {
+            const valueDate = document.getElementById('valueDate').value;
+            const maturityDate = document.getElementById('maturityDate').value;
+            
+            if (valueDate && maturityDate) {
+                const start = new Date(valueDate);
+                const end = new Date(maturityDate);
+                const diffTime = end - start;
+                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
+                document.getElementById('duration').value = diffDays > 0 ? diffDays : '';
+            }
+        }
+
+        // 计算工作日
+        function countWorkingDays(startDate, endDate) {
+            let current = new Date(startDate);
+            let workingDays = 0;
+            
+            while (current < endDate) {
+                const dayOfWeek = current.getDay();
+                if (dayOfWeek !== 0 && dayOfWeek !== 6) { // 不是周末
+                    workingDays++;
+                }
+                current.setDate(current.getDate() + 1);
+            }
+            
+            return workingDays;
+        }
+
+        // 表单验证（移除日期强制校验）
+        function validateForm() {
+            const form = document.getElementById('certificateForm');
+            const requiredFields = form.querySelectorAll('[required]');
+            let isValid = true;
+            
+            requiredFields.forEach(field => {
+                if (!field.value.trim()) {
+                    field.style.borderColor = '#e74c3c';
+                    isValid = false;
+                } else {
+                    field.style.borderColor = '#ddd';
+                }
+            });
+            
+            // 可选的日期提醒（不强制验证）
+            const confirmationDate = new Date(document.getElementById('confirmationDate').value);
+            const subscriptionDate = new Date(document.getElementById('subscriptionDate').value);
+            
+            if (confirmationDate && subscriptionDate) {
+                const workingDays = countWorkingDays(confirmationDate, subscriptionDate);
+                
+                if (workingDays < 7) {
+                    // 只是提醒，不阻止表单提交
+                    console.log('提醒：要素确认日期建议早于产品认购日至少7个工作日');
+                }
+            }
+            
+            if (isValid) {
+                alert('表单验证通过！');
+            } else {
+                alert('请检查标红的必填字段！');
+            }
+            
+            return isValid;
+        }
+
+        // Word文档生成函数
+        function generateWordDocument() {
+            console.log('开始生成Word文档...');
+            
+            if (!validateForm()) {
+                console.log('表单验证失败');
+                return;
+            }
+            
+            try {
+                console.log('获取表单数据...');
+                const formData = new FormData(document.getElementById('certificateForm'));
+                
+                // HTML内容
+                const htmlContent = `<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>收益凭证要素确认表</title>
+    <style>
+        body { font-family: "宋体", Arial, sans-serif; margin: 20px; }
+        h1 { text-align: center; font-size: 18px; margin-bottom: 20px; }
+        table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+        td { border: 1px solid black; padding: 8px; vertical-align: top; }
+        .header { background-color: #f0f0f0; font-weight: bold; text-align: center; }
+        .label { background-color: #f8f8f8; width: 25%; }
+        .notes { margin-top: 15px; font-size: 12px; }
+    </style>
+</head>
+<body>
+    <h1>收益凭证要素确认表</h1>
+    
+    <table>
+        <tr>
+            <td class="label">所选产品名称，编码</td>
+            <td colspan="3">${formData.get('productName') || ''} / ${formData.get('productCode') || ''}</td>
+        </tr>
+        
+        <tr>
+            <td class="label">挂钩标的，编码</td>
+            <td colspan="3">${formData.get('underlying') || ''} / ${formData.get('underlyingCode') || ''}</td>
+        </tr>
+        
+        <tr>
+            <td class="header">产品收益区间</td>
+            <td class="header">保底收益</td>
+            <td class="header">敲出收益</td>
+            <td class="header">最高收益</td>
+        </tr>
+        
+        <tr>
+            <td class="label">收益率</td>
+            <td>${formData.get('minReturn') || ''}%</td>
+            <td>${formData.get('knockoutReturn') || ''}%</td>
+            <td>${formData.get('maxReturn') || ''}%</td>
+        </tr>
+        
+        <tr>
+            <td class="label">产品结构</td>
+            <td>障碍价: ${formData.get('barrierPrice') || ''}%</td>
+            <td>参与率: ${formData.get('participationRate') || ''}%</td>
+            <td></td>
+        </tr>
+        
+        <tr>
+            <td class="label">拟认购金额(万)</td>
+            <td colspan="3">${formData.get('subscriptionAmount') || ''} 万</td>
+        </tr>
+        
+        <tr>
+            <td class="label">产品认购日(T)</td>
+            <td colspan="3">${formData.get('subscriptionDate') || ''}</td>
+        </tr>
+        
+        <tr>
+            <td class="label">产品起息日(T+1)</td>
+            <td colspan="3">${formData.get('valueDate') || ''}</td>
+        </tr>
+        
+        <tr>
+            <td class="label">产品到期日(T)</td>
+            <td colspan="3">${formData.get('maturityDate') || ''}</td>
+        </tr>
+        
+        <tr>
+            <td class="label">产品兑付日(T+2)</td>
+            <td colspan="3">${formData.get('settlementDate') || ''}</td>
+        </tr>
+        
+        <tr>
+            <td class="label">产品存续时间(天)<br>(到期日-起息日+1)</td>
+            <td colspan="3">${formData.get('duration') || ''} 天</td>
+        </tr>
+        
+        <tr>
+            <td class="label">客户信息</td>
+            <td colspan="3">${(formData.get('customerInfo') || '').replace(/\n/g, '<br>')}</td>
+        </tr>
+        
+        <tr>
+            <td class="label">客户所属分支机构</td>
+            <td colspan="3">${formData.get('branch') || ''}</td>
+        </tr>
+        
+        <tr>
+            <td class="label">要素确认日期<br>(需早于产品认购日至少7个工作日)</td>
+            <td colspan="3">${formData.get('confirmationDate') || ''}</td>
+        </tr>
+        
+        <tr>
+            <td class="label">填表人</td>
+            <td colspan="3">${formData.get('preparer') || ''}</td>
+        </tr>
+    </table>
+    
+    <div class="notes">
+        <p><strong>注：</strong>填写前，请向金融市场投资总部确认收益凭证<strong>额度及报价</strong>；</p>
+        <p style="margin-left: 2em;">填写完整后，请与<strong>客户核对</strong>，并以<strong>PDF</strong>形式回复；</p>
+        <p style="margin-left: 2em;">如要素有更改，请<strong>重新填写</strong>，否则以最后一版PDF文件为准。</p>
+    </div>
+</body>
+</html>`;
+                
+                // 创建Blob对象
+                const blob = new Blob([htmlContent], {
+                    type: 'application/msword'
+                });
+                
+                // 创建下载链接
+                const url = URL.createObjectURL(blob);
+                const fileName = `收益凭证要素确认表_${new Date().toISOString().split('T')[0]}.doc`;
+                
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = fileName;
+                link.style.display = 'none';
+                
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                
+                // 清理URL
+                setTimeout(() => {
+                    URL.revokeObjectURL(url);
+                }, 1000);
+                
+                alert('Word文档生成成功！\n文件名：' + fileName + '\n请检查浏览器的下载文件夹。');
+                
+            } catch (error) {
+                console.error('Word文档生成错误:', error);
+                alert('Word文档生成失败：' + error.message);
+            }
+        }
+
+        // 使用浏览器原生打印功能生成PDF（推荐方法）
+        function generatePDFDocument() {
+            console.log('开始生成PDF文档...');
+            
+            if (!validateForm()) {
+                console.log('表单验证失败');
+                return;
+            }
+            
+            try {
+                const formData = new FormData(document.getElementById('certificateForm'));
+                
+                // 创建新窗口用于打印
+                const printWindow = window.open('', '_blank');
+                
+                // 构建打印页面内容
+                const printContent = `
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>收益凭证要素确认表</title>
+    <style>
+        @media print {
+            body { margin: 0; }
+            .no-print { display: none; }
+        }
+        
+        body {
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            font-size: 12px;
+            line-height: 1.4;
+            margin: 20px;
+            color: black;
+        }
+        
+        h1 {
+            text-align: center;
+            font-size: 18px;
+            margin-bottom: 20px;
+            color: black;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        
+        td {
+            border: 1px solid black;
+            padding: 8px;
+            vertical-align: top;
+            color: black;
+        }
+        
+        .header-cell {
+            background-color: #f0f0f0;
+            font-weight: bold;
+            width: 25%;
+        }
+        
+        .section-header {
+            background-color: #e0e0e0;
+            font-weight: bold;
+            text-align: center;
+        }
+        
+        .notes {
+            margin-top: 15px;
+            font-size: 10px;
+            line-height: 1.4;
+        }
+        
+        .print-button {
+            text-align: center;
+            margin: 20px 0;
+            page-break-inside: avoid;
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 0 10px;
+        }
+        
+        .btn:hover {
+            background-color: #2980b9;
+        }
+        
+        @media print {
+            .print-button { display: none; }
+        }
+    </style>
+</head>
+<body>
+    <div class="print-button no-print">
+        <button class="btn" onclick="window.print()">打印/保存为PDF</button>
+        <button class="btn" onclick="window.close()">关闭窗口</button>
+        <p style="color: #666; margin-top: 10px;">
+            点击"打印/保存为PDF"按钮，在打印对话框中选择"保存为PDF"即可生成PDF文件
+        </p>
+    </div>
+    
+    <h1>收益凭证要素确认表</h1>
+    
+    <table>
+        <tr>
+            <td class="header-cell">所选产品名称，编码</td>
+            <td colspan="3">${formData.get('productName') || ''} / ${formData.get('productCode') || ''}</td>
+        </tr>
+        
+        <tr>
+            <td class="header-cell">挂钩标的，编码</td>
+            <td colspan="3">${formData.get('underlying') || ''} / ${formData.get('underlyingCode') || ''}</td>
+        </tr>
+        
+        <tr>
+            <td class="section-header">产品收益区间</td>
+            <td class="section-header">保底收益</td>
+            <td class="section-header">敲出收益</td>
+            <td class="section-header">最高收益</td>
+        </tr>
+        
+        <tr>
+            <td class="header-cell">收益率</td>
+            <td style="text-align: center;">${formData.get('minReturn') || ''}%</td>
+            <td style="text-align: center;">${formData.get('knockoutReturn') || ''}%</td>
+            <td style="text-align: center;">${formData.get('maxReturn') || ''}%</td>
+        </tr>
+        
+        <tr>
+            <td class="section-header">产品结构</td>
+            <td class="section-header">障碍价</td>
+            <td class="section-header">参与率</td>
+            <td class="section-header"></td>
+        </tr>
+        
+        <tr>
+            <td class="header-cell">结构参数</td>
+            <td style="text-align: center;">${formData.get('barrierPrice') || ''}%</td>
+            <td style="text-align: center;">${formData.get('participationRate') || ''}%</td>
+            <td></td>
+        </tr>
+        
+        <tr>
+            <td class="header-cell">拟认购金额(万)</td>
+            <td colspan="3">${formData.get('subscriptionAmount') || ''} 万</td>
+        </tr>
+        
+        <tr>
+            <td class="header-cell">产品认购日(T)</td>
+            <td colspan="3">${formData.get('subscriptionDate') || ''}</td>
+        </tr>
+        
+        <tr>
+            <td class="header-cell">产品起息日(T+1)</td>
+            <td colspan="3">${formData.get('valueDate') || ''}</td>
+        </tr>
+        
+        <tr>
+            <td class="header-cell">产品到期日(T)</td>
+            <td colspan="3">${formData.get('maturityDate') || ''}</td>
+        </tr>
+        
+        <tr>
+            <td class="header-cell">产品兑付日(T+2)</td>
+            <td colspan="3">${formData.get('settlementDate') || ''}</td>
+        </tr>
+        
+        <tr>
+            <td class="header-cell">产品存续时间(天)<br><small>(到期日-起息日+1)</small></td>
+            <td colspan="3">${formData.get('duration') || ''} 天</td>
+        </tr>
+        
+        <tr>
+            <td class="header-cell">客户信息</td>
+            <td colspan="3" style="min-height: 60px;">${(formData.get('customerInfo') || '').replace(/\n/g, '<br>')}</td>
+        </tr>
+        
+        <tr>
+            <td class="header-cell">客户所属分支机构</td>
+            <td colspan="3">${formData.get('branch') || ''}</td>
+        </tr>
+        
+        <tr>
+            <td class="header-cell">要素确认日期<br><small>(需早于产品认购日至少7个工作日)</small></td>
+            <td colspan="3">${formData.get('confirmationDate') || ''}</td>
+        </tr>
+        
+        <tr>
+            <td class="header-cell">填表人</td>
+            <td colspan="3">${formData.get('preparer') || ''}</td>
+        </tr>
+    </table>
+    
+    <div class="notes">
+        <p><strong>注：</strong>填写前，请向金融市场投资总部确认收益凭证<strong>额度及报价</strong>；</p>
+        <p style="margin-left: 1em; margin-top: 3px;">填写完整后，请与<strong>客户核对</strong>，并以<strong>PDF</strong>形式回复；</p>
+        <p style="margin-left: 1em; margin-top: 3px;">如要素有更改，请<strong>重新填写</strong>，否则以最后一版PDF文件为准。</p>
+    </div>
+</body>
+</html>`;
+                
+                printWindow.document.write(printContent);
+                printWindow.document.close();
+                
+                // 等待内容加载完成
+                printWindow.onload = function() {
+                    console.log('打印窗口加载完成');
+                };
+                
+                alert('已打开打印预览窗口\n\n操作步骤：\n1. 点击"打印/保存为PDF"按钮\n2. 在打印对话框中选择"保存为PDF"\n3. 选择保存位置并确认\n\n这种方法生成的PDF文件中文显示完美！');
+                
+            } catch (error) {
+                console.error('PDF生成错误:', error);
+                alert('PDF生成失败：' + error.message);
+            }
+        }
+
+        // 备用方法：使用html2pdf（如果用户更喜欢自动下载）
+        function generatePDFDocumentAuto() {
+            console.log('开始自动生成PDF文档...');
+            
+            if (!validateForm()) {
+                return;
+            }
+            
+            try {
+                const formData = new FormData(document.getElementById('certificateForm'));
+                
+                // 创建临时div
+                const tempDiv = document.createElement('div');
+                tempDiv.style.position = 'fixed';
+                tempDiv.style.top = '0';
+                tempDiv.style.left = '0';
+                tempDiv.style.width = '210mm';
+                tempDiv.style.backgroundColor = 'white';
+                tempDiv.style.zIndex = '9999';
+                tempDiv.style.padding = '10mm';
+                
+                tempDiv.innerHTML = `
+                <div style="font-family: Arial, sans-serif; color: black; font-size: 12px;">
+                    <h1 style="text-align: center; margin-bottom: 20px;">收益凭证要素确认表</h1>
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <tr>
+                            <td style="border: 1px solid black; padding: 5px; background: #f0f0f0; width: 25%;">所选产品名称，编码</td>
+                            <td style="border: 1px solid black; padding: 5px;" colspan="3">${formData.get('productName') || ''} / ${formData.get('productCode') || ''}</td>
+                        </tr>
+                        <tr>
+                            <td style="border: 1px solid black; padding: 5px; background: #f0f0f0;">挂钩标的，编码</td>
+                            <td style="border: 1px solid black; padding: 5px;" colspan="3">${formData.get('underlying') || ''} / ${formData.get('underlyingCode') || ''}</td>
+                        </tr>
+                        <tr>
+                            <td style="border: 1px solid black; padding: 5px; background: #e0e0e0; text-align: center;">产品收益区间</td>
+                            <td style="border: 1px solid black; padding: 5px; background: #e0e0e0; text-align: center;">保底收益</td>
+                            <td style="border: 1px solid black; padding: 5px; background: #e0e0e0; text-align: center;">敲出收益</td>
+                            <td style="border: 1px solid black; padding: 5px; background: #e0e0e0; text-align: center;">最高收益</td>
+                        </tr>
+                        <tr>
+                            <td style="border: 1px solid black; padding: 5px; background: #f0f0f0;">收益率</td>
+                            <td style="border: 1px solid black; padding: 5px; text-align: center;">${formData.get('minReturn') || ''}%</td>
+                            <td style="border: 1px solid black; padding: 5px; text-align: center;">${formData.get('knockoutReturn') || ''}%</td>
+                            <td style="border: 1px solid black; padding: 5px; text-align: center;">${formData.get('maxReturn') || ''}%</td>
+                        </tr>
+                        <!-- 其他行省略，以节省空间 -->
+                    </table>
+                </div>`;
+                
+                document.body.appendChild(tempDiv);
+                
+                setTimeout(() => {
+                    html2pdf()
+                        .set({
+                            margin: 10,
+                            filename: `收益凭证要素确认表_${new Date().toISOString().split('T')[0]}.pdf`,
+                            html2canvas: { scale: 1 },
+                            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+                        })
+                        .from(tempDiv)
+                        .save()
+                        .finally(() => {
+                            document.body.removeChild(tempDiv);
+                        });
+                }, 300);
+                
+            } catch (error) {
+                console.error('自动PDF生成错误:', error);
+                alert('自动PDF生成失败，请使用打印方法');
+            }
+        }
+    </script>
+</body>
+</html>
